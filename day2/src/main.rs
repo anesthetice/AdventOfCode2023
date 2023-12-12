@@ -66,14 +66,13 @@ fn parse_set(input: &str) -> Color {
     output
 }
 
-/// ignores the tag just retuns the sum of the sets
-fn parse_line(input: &str) -> Color {
+/// ignores the tag just retuns the 3 parsed sets
+fn parse_line(input: &str) -> Vec<Color> {
     let input = &input[input.find(':').unwrap()+2..];
-    let mut output: Color = Color::new_null();
-    input.split("; ").for_each(|substring| {
-        output += parse_set(substring);
-    });
-
+    let mut output: Vec<Color> = Vec::new();
+    for substring in input.split("; ") {
+        output.push(parse_set(substring));
+    }
     output
 }
 
@@ -92,14 +91,16 @@ fn main() {
     let mut output: usize = 0;
     let mut counter: usize = 1;
     for line in input.trim().lines() {
-        println!("line: '{}'\nparsed: {:?}", line, parse_line(line));
-        if parse_line(line).is_possible(&bag) {
-            println!("possible, adding {}", counter);
-            output += counter
+        let parsed_line = parse_line(line);
+        let mut is_valid: bool = true;
+        for color in parsed_line {
+            if !color.is_possible(&bag) {
+                is_valid = false;
+                break;
+            }
         }
+        if is_valid {output+=counter};
         counter += 1;
-        println!("");
     }
-
     println!("{}", output);
 }
