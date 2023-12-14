@@ -1,3 +1,4 @@
+use core::num;
 use std::{io::Read, fmt::Debug};
 
 fn main() {
@@ -29,7 +30,7 @@ fn main() {
         .collect();
 
     let mut sum: u32 = 0;
-    for symbol in symbols {
+    for symbol in symbols.iter() {
         let adjacent_positions: Vec<(usize, usize)> = vec![
             (symbol.line_idx-1, symbol.pos_idx-1), (symbol.line_idx-1, symbol.pos_idx), (symbol.line_idx-1, symbol.pos_idx+1),
             (symbol.line_idx, symbol.pos_idx-1), (symbol.line_idx, symbol.pos_idx), (symbol.line_idx, symbol.pos_idx+1),
@@ -44,6 +45,31 @@ fn main() {
                     break 'main;
                 }
             }
+        }
+    }
+    println!("{}", sum);
+
+    // part 2
+    let mut sum: u32 = 0;
+    for symbol in symbols.iter() {
+
+        let adjacent_positions: Vec<(usize, usize)> = vec![
+            (symbol.line_idx-1, symbol.pos_idx-1), (symbol.line_idx-1, symbol.pos_idx), (symbol.line_idx-1, symbol.pos_idx+1),
+            (symbol.line_idx, symbol.pos_idx-1), (symbol.line_idx, symbol.pos_idx), (symbol.line_idx, symbol.pos_idx+1),
+            (symbol.line_idx+1, symbol.pos_idx-1), (symbol.line_idx+1, symbol.pos_idx), (symbol.line_idx+1, symbol.pos_idx+1),
+        ];
+    
+        let adjacent_numbers: Vec<Number> = numbers.iter().filter_map(|number| {
+            for sub_idx in number.start_idx..(number.start_idx+number.length) {
+                if adjacent_positions.contains(&(number.line_idx, sub_idx)) {
+                    return Some(number.clone());
+                }
+            }
+            return None
+        }).collect();
+
+        if adjacent_numbers.len() == 2 {
+            sum += adjacent_numbers[0].value * adjacent_numbers[1].value;
         }
     }
     println!("{}", sum);
