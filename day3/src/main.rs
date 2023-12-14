@@ -1,6 +1,4 @@
-use core::num;
 use std::{io::Read, fmt::Debug};
-
 
 fn main() {
     let mut input: String = String::new();
@@ -48,7 +46,6 @@ fn main() {
             }
         }
     }
-
     println!("{}", sum);
 }
 
@@ -84,7 +81,7 @@ impl Number {
 fn parse_line_for_numbers(input: &str, line_idx: usize) -> Vec<Number> {
     let mut output: Vec<Number> = Vec::new();
     let mut output_part: Number = Number::new(0, line_idx, 0, 0);
-    for (idx, chr) in input.chars().enumerate() {
+    for (idx, chr) in input.char_indices() {
         if output_part.length == 0 {
             output_part.start_idx = idx;
         }
@@ -98,6 +95,10 @@ fn parse_line_for_numbers(input: &str, line_idx: usize) -> Vec<Number> {
                     output_part.start_idx = idx;
                 }
             },
+        }
+        // edge case, if the number is situated at the edge of the grid it will not be pushed out
+        if idx == input.chars().count()-1 {
+            output.push(output_part.clone());
         }
     }
     output
