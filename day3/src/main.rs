@@ -2,14 +2,7 @@ use core::num;
 use std::{io::Read, fmt::Debug};
 
 fn main() {
-    let mut input: String = String::new();
-    std::fs::OpenOptions::new()
-        .create(false)
-        .read(true)
-        .open("input.txt")
-        .unwrap()
-        .read_to_string(&mut input)
-        .unwrap();
+    let input = include_str!("../input.txt");
 
     let numbers: Vec<Number> = input
         .trim()
