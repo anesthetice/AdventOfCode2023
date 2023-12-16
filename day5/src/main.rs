@@ -2,6 +2,50 @@
 
 fn main() {
     let input: &'static str = include_str!("../input.txt");
+    
+    let mut input: Vec<&str> = input.trim().split("\n\n").collect();
+
+    let seeds: Vec<u64> = (&input.remove(0)[7..])
+        .split(' ')
+        .map(|substring| {substring.parse::<u64>().unwrap()})
+        .collect();
+
+    let input: Vec<Vec<&str>> = input
+        .into_iter()
+        .map(|paragraph| {
+            paragraph.lines().skip(1).collect::<Vec<&str>>()
+        })
+        .collect();
+
+    let hypermap = input
+        .into_iter()
+        .map(|paragraph| {
+            paragraph
+                .into_iter()
+                .map(|line| { parse_tuple(parse_line(line)) })
+                .collect::<Vec<Box<dyn Fn(u64) -> Option<u64>>>>()
+        })
+        .collect::<Vec<Vec<Box<dyn Fn(u64) -> Option<u64>>>>>();
+
+    let mut locations: Vec<u64> = seeds
+        .into_iter()
+        .map(|mut seed| {
+            for supermap in hypermap.iter() {
+                'break_point:
+                for map in supermap {
+                    if let Some(new_seed) = map(seed) {
+                        seed = new_seed;
+                        break 'break_point;
+                    }
+                }
+            }
+            seed
+        })
+        .collect();
+
+    locations.sort();
+
+    println!("{}", locations[0]);
 }
 
 fn parse_line(input: &str) -> (u64, u64, u64) {
@@ -104,12 +148,12 @@ pub mod tests {
         for mut seed in seeds.into_iter() {
             print!("{}", seed);
             for supermap in seed_to_location_hypermap.iter() {
-                'supermap :
+                'break_point :
                 for map in supermap {
                     if let Some(new_seed) = map(seed) {
                         seed = new_seed;
                         
-                        break 'supermap;
+                        break 'break_point;
                     }
                 }
                 print!(" -> {}", seed);
