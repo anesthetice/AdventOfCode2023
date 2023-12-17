@@ -33,7 +33,7 @@ impl From<&str> for Hand {
                     '2' => 2, '3' => 3, '4' => 4, '5' => 5,
                     '6' => 6, '7' => 7, '8' => 8, '9' => 9,
                     'T' => 10,'J' => 11,'Q' => 12,'K' => 13,
-                    'A' => 14, _ => panic!(),
+                    'A' => 14, _ => unreachable!(),
                 }
             })
             .collect();
@@ -70,7 +70,7 @@ impl From<&str> for Hand {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn main() {
+    fn primairy() {
         use crate::part1::Hand;
 
         let input: &str = "32T3K 765\nT55J5 684\nKK677 28\nKTJJT 220\nQQQJA 483";
