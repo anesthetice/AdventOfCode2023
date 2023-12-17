@@ -56,7 +56,7 @@ impl From<&str> for Hand {
         let main_score: u64 = main_score_precursor
             .into_iter()
             .map(|precursor| {
-                if precursor > 0 {
+                if precursor > 1 {
                     (1..=precursor).product::<u64>()
                 } else {
                     0
@@ -116,6 +116,15 @@ mod tests {
         assert_eq!(
             run(input),
             5
+        )
+    }
+    #[test]
+    fn quarternary() {
+        let input: &str = "2345A 1\nQ2KJJ 13\nQ2Q2Q 19\nT3T3J 17\nT3Q33 11\n2345J 3\nJ345A 2\n32T3K 5\nT55J5 29\nKK677 7\nKTJJT 34\nQQQJA 31\nJJJJJ 37\nJAAAA 43\nAAAAJ 59\nAAAAA 61\n2AAAA 23\n2JJJJ 53\nJJJJ2 41";
+
+        assert_eq!(
+            run(input),
+            6839,
         )
     }
 }
