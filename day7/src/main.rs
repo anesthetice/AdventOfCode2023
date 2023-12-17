@@ -10,7 +10,6 @@ fn main() {
 fn part1_main(input: &str) {
     use crate::part1::*;
 
-    
     let mut hands: Vec<Hand> = Vec::new();
     for line in input.trim().lines() {
         Hand::from(line).incorporate(&mut hands);

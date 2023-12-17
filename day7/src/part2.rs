@@ -92,7 +92,7 @@ mod tests {
             .fold(0, |acc, (idx, hand)| {acc + hand.bid * (idx as u64+1)})
     }
     #[test]
-    fn primairy() {
+    fn primary() {
         let input: &str = "32T3K 765\nT55J5 684\nKK677 28\nKTJJT 220\nQQQJA 483";
         
         assert_eq!(
