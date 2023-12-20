@@ -1,10 +1,20 @@
-use std::{ops::Range, collections::HashMap};
+use std::{ops::Range, collections::HashMap, char};
+
 fn main() {
     let input: &'static str = include_str!("../input.txt");
-
     let map = parse_input(input);
 
-    let S_pos = input
+    let characters: Vec<Vec<char>> = input
+        .trim()
+        .lines()
+        .map(|line| {
+            line
+            .chars()
+            .collect()
+        })
+        .collect();
+
+    let s_pos = input
         .trim()
         .lines()
         .enumerate()
@@ -13,25 +23,37 @@ fn main() {
         })
         .fold((0, 0), |acc, x| {(acc.0 + x.0, acc.1 + x.1.find('S').unwrap())});
     
-    let S_pos_1 = Position::new(S_pos.0, S_pos.1-1);
-    
     let mut direction: Direction = Direction::E;
-    let mut position: Position = Position::new(S_pos.0, S_pos.1 - 1);
-    let mut trace: String = String::new();
+    let mut position: Position = Position::new(s_pos.0, s_pos.1 - 1);
     let mut steps: usize = 1;
+
+    let mut loop_: HashMap<Position, char> = HashMap::new();
+    loop_.insert(position, characters[position.x][position.y]);
 
     while let Some((dir, pos)) = map.get(&(direction, position)) {
         direction = dir.clone();
         position = pos.clone();
-        trace = format!("{}{:?}\n", trace, position);
+        loop_.insert(position, characters[position.x][position.y]);
         steps += 1;
     }
-
     println!("{}", steps);
 
-    use std::io::Write;
-    let mut f = std::fs::OpenOptions::new().create(true).write(true).truncate(true).open("stdout.txt").unwrap().write_all(trace.as_bytes()).unwrap();
+    let mut enclosed_tiles_amount: usize = 0;
 
+    
+    for x in 0..characters.len() {for y in 0..characters[0].len() {
+        let mut count = 0;
+        for new_y in 0..y {
+            if loop_.get(&Position::new(x, new_y)).is_some() {
+                count += 1;
+            }
+        }
+        if count % 2 == 1 {
+            enclosed_tiles_amount += 1;
+        }
+    }}
+
+    println!("{}", enclosed_tiles_amount)
 }
 
 fn parse_input(input: &str) -> HashMap<(Direction, Position), (Direction, Position)> {
@@ -107,53 +129,3 @@ impl Position {
         Self { x, y }
     }
 }
-
-
-/*
-struct Runner {
-    position: (usize, usize),
-    in_direction: Direction,
-    out_direction: Direction,
-    steps: usize
-}
-
-impl Runner {
-    // assume a runner is created from the position of a 'S' character
-    pub fn new(position: (usize, usize), out_direction: Direction) -> Self {
-        Self { position, in_direction: out_direction.opposite(), out_direction, steps: 0 }
-    }
-    pub fn step(mut self, grid: &[&str], x_bound: &Range<usize>, y_bound: &Range<usize>) -> Result<Self, usize> {
-        self.out_direction.step_position(&mut self.position);
-        if !x_bound.contains(&self.position.0) || !y_bound.contains(&self.position.1) {
-            return Err(self.steps);
-        }
-
-        match grid[self.position.0].chars().nth(self.position.1).unwrap() {
-            'S' => return Err(self.steps)
-        }
-
-        Ok(self)
-    }
-}
-
-
-
-impl Direction {
-    fn opposite(&self) -> Direction {
-        match self {
-            Direction::North => Direction::South,
-            Direction::East => Direction::West,
-            Direction::South => Direction::North,
-            Direction::West => Direction::East
-        }
-    }
-    fn step_position(&self, position: &mut (usize, usize)) {
-        match self {
-            Direction::North => position.0 -= 1,
-            Direction::East => position.1 += 1,
-            Direction::South => position.0 += 1,
-            Direction::West => position.1 -= 1,
-        }
-    }
-}
-*/
