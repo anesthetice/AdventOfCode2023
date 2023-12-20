@@ -105,8 +105,6 @@ fn main_part_2(input: &str) {
     println!("{}", steps);
 }
 
-
-
 fn parse_line<'a>(input: &'a str, output: &mut HashMap<&'a str, (&'a str, &'a str)>) {
     let (key, value) = input
         .split_once(" = ")
