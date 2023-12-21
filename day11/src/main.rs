@@ -1,10 +1,37 @@
 fn main() {
     let input: &str = include_str!("../input.txt");
+    let input: String = process_image(input);
+
+    let galaxies = input
+        .trim()
+        .lines()
+        .enumerate()
+        .flat_map(|(row_idx, line)| {
+            line
+                .char_indices()
+                .flat_map(|(col_idx, chr)| {
+                    if chr == '#' {
+                        Some(Vector(row_idx, col_idx))
+                    }
+                    else {None}
+                })
+                .collect::<Vec<Vector>>()
+        })
+        .collect::<Vec<Vector>>();
+
+    let mut sum: usize = 0;
+
+    for i in 0..galaxies.len() {
+        for j in i+1..galaxies.len() {
+            sum += galaxies[i].dist(&galaxies[j]);
+        }
+    }
+
+    println!("{}", sum);
 }
 
 
 fn process_image(input: &str) -> String {
-    println!("{}\n", input);
     let mut input: Vec<Vec<char>> = input
         .trim()
         .lines()
@@ -52,23 +79,20 @@ fn process_image(input: &str) -> String {
         }
     }  
 
-    let a = input
+    input
         .into_iter()
         .map(|line| {
             format!("{}\n", line.into_iter().collect::<String>())
         })
-        .collect::<String>();
-
-    println!("{}", a);
-
-    a
+        .collect::<String>()
 }
 
 /// represents a vector belonging to N²
-pub struct Vector(u64, u64);
+#[derive(Debug)]
+pub struct Vector(usize, usize);
 
 impl Vector {
-    pub fn dist(&self, other: &Self) -> u64 {
+    pub fn dist(&self, other: &Self) -> usize {
         self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
     }
 }
