@@ -1,4 +1,4 @@
-use std::{ops::Range, collections::HashMap, char};
+use std::{ops::Range, collections::HashMap};
 
 fn main() {
     let input: &'static str = include_str!("../input.txt");
@@ -40,12 +40,12 @@ fn main() {
 
     let mut enclosed_tiles_amount: usize = 0;
 
-    
     for x in 0..characters.len() {for y in 0..characters[0].len() {
         let mut count = 0;
+        if loop_.get(&Position::new(x, y)).is_some() {continue;}
         for new_y in 0..y {
-            if loop_.get(&Position::new(x, new_y)).is_some() {
-                count += 1;
+            if let Some(chr) = loop_.get(&Position::new(x, new_y)) {
+                if *chr == '|' || *chr == 'J' || *chr == 'L' {count += 1}
             }
         }
         if count % 2 == 1 {
