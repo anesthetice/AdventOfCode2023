@@ -7,4 +7,3 @@ edition = "2021"
 opt-level = 3
 
 [dependencies]
-indoc = "2.0.*"

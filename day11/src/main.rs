@@ -1,38 +1,27 @@
 fn main() {
     let input: &str = include_str!("../input.txt");
-    let input: String = process_image(input);
 
-    let galaxies = input
-        .trim()
-        .lines()
-        .enumerate()
-        .flat_map(|(row_idx, line)| {
-            line
-                .char_indices()
-                .flat_map(|(col_idx, chr)| {
-                    if chr == '#' {
-                        Some(Vector(row_idx, col_idx))
-                    }
-                    else {None}
-                })
-                .collect::<Vec<Vector>>()
-        })
-        .collect::<Vec<Vector>>();
-
+    let galaxies_1: Vec<Vector> = process_image(input, 1);
     let mut sum: usize = 0;
-
-    for i in 0..galaxies.len() {
-        for j in i+1..galaxies.len() {
-            sum += galaxies[i].dist(&galaxies[j]);
+    for i in 0..galaxies_1.len() {
+        for j in i+1..galaxies_1.len() {
+            sum += galaxies_1[i].dist(&galaxies_1[j]);
         }
     }
+    println!("{}", sum);
 
+    let galaxies_2: Vec<Vector> = process_image(input, 999999);
+    let mut sum: usize = 0;
+    for i in 0..galaxies_2.len() {
+        for j in i+1..galaxies_2.len() {
+            sum += galaxies_2[i].dist(&galaxies_2[j]);
+        }
+    }
     println!("{}", sum);
 }
 
-
-fn process_image(input: &str) -> String {
-    let mut input: Vec<Vec<char>> = input
+fn process_image(input: &str, expansion: usize) -> Vec<Vector> {
+    let input: Vec<Vec<char>> = input
         .trim()
         .lines()
         .map(|line| {
@@ -68,71 +57,48 @@ fn process_image(input: &str) -> String {
         })
         .collect();
 
-    for (x, row_index) in row_indexes_to_expand.into_iter().enumerate() {
-        input.insert(row_index+x, vec!['.'; row_length])
-    }
-    let col_length: usize = input.len();
-
-    for (x, col_index) in col_indexes_to_expand.into_iter().enumerate() {
-        for row_index in 0..col_length {
-            input[row_index].insert(col_index+x, '.')
-        }
-    }  
-
-    input
+    let galaxies = input
         .into_iter()
-        .map(|line| {
-            format!("{}\n", line.into_iter().collect::<String>())
+        .enumerate()
+        .flat_map(|(row_idx, line)| {
+            line
+                .into_iter()
+                .enumerate()
+                .flat_map(|(col_idx, chr)| {
+                    if chr == '#' {
+                        Some(Vector(row_idx, col_idx))
+                    }
+                    else {None}
+                })
+                .collect::<Vec<Vector>>()
         })
-        .collect::<String>()
+        .collect::<Vec<Vector>>();
+
+    galaxies
+        .into_iter()
+        .map(|mut vect| {
+            let vect_ = vect.clone();
+            for row_idx in row_indexes_to_expand.iter() {
+                if *row_idx < vect_.0 {
+                    vect.0 += expansion
+                }
+            }
+            for col_idx in col_indexes_to_expand.iter() {
+                if *col_idx < vect_.1 {
+                    vect.1 += expansion;
+                }
+            }
+            vect
+        })
+        .collect::<Vec<Vector>>()
 }
 
 /// represents a vector belonging to N²
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Vector(usize, usize);
 
 impl Vector {
     pub fn dist(&self, other: &Self) -> usize {
         self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use indoc::indoc;
-    #[test]
-    pub fn process_image_test() {
-        let input: &'static str = indoc! {
-            "...#......
-            .......#..
-            #.........
-            ..........
-            ......#...
-            .#........
-            .........#
-            ..........
-            .......#..
-            #...#....."};
-
-        let output: &'static str = indoc! {
-            "....#........
-            .........#...
-            #............
-            .............
-            .............
-            ........#....
-            .#...........
-            ............#
-            .............
-            .............
-            .........#...
-            #....#.......
-            "
-        };
-
-        assert_eq!(
-            output,
-            crate::process_image(input).as_str()
-        )
     }
 }
