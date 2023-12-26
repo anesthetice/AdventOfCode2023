@@ -21,16 +21,6 @@ fn main() {
         })
         .fold(0_usize, |acc, x| {acc+x});
     println!("{}", answer_2);
-
-    /*
-    let input: &str = "?#.??????#??#?#?#?#? 1,1,15";
-    let (input, checklist) = parse_line_part_1(input);
-    println!(
-        "{}",
-        count(&input, &checklist)
-    )  
-    */
-
 }
 
 fn count(input: &str, checklist: &[usize], memoize: &mut HashMap<(String, Vec<usize>), usize>) -> usize {
@@ -55,16 +45,22 @@ fn count(input: &str, checklist: &[usize], memoize: &mut HashMap<(String, Vec<us
         result += count(&input[1..], &checklist, memoize);
     }
 
-    if "#?".contains(&input[0..1]) {
-        // fist check that we even have the required length for a block of broken springs
-        if checklist[0] <= input.len()
-        // makes sure there aren't any working springs inside our block
-        && !input[0..checklist[0]].contains('.') 
-        // asserts that we've either reached the end of our input or that there isn't another broken spring at the end of our block as that would invalidate the block
-        && (input.len() == checklist[0] || &input[checklist[0]..checklist[0]+1] != "#")
-        {
-            result += count(&input[checklist[0]..], &checklist[1..], memoize)
+    if "#?".contains(&input[0..1])
+    // fist check that we even have the required length for a block of broken springs
+    && checklist[0] <= input.len()
+    // makes sure there aren't any working springs inside our block
+    && !input[0..checklist[0]].contains('.') 
+    // asserts that we've either reached the end of our input or that there isn't another broken spring at the end of our block as that would invalidate the block
+    && (input.len() == checklist[0] || &input[checklist[0]..checklist[0]+1] != "#")
+    {
+        let idx = checklist[0] + 1;
+        if idx < input.len() {
+            result += count(&input[checklist[0]+1..], &checklist[1..], memoize)
         }
+        else {
+            result += count(&input[0..0], &checklist[1..], memoize)
+        }
+        
     }
 
     memoize.insert(key, result);
