@@ -1,29 +1,25 @@
-use rayon::{iter::{self, ParallelIterator, IntoParallelIterator}, str::ParallelString};
+use std::collections::HashMap;
 
 fn main() {
     let input: &'static str = include_str!("../input.txt");
-
+    let mut memoize: HashMap<(String, Vec<usize>), usize> = HashMap::new();
     
     let answer_1: usize = input
-        .par_lines()
+        .lines()
         .map(|line| {
             let (input, checklist) = parse_line_part_1(line);
-            count(&input, &checklist)
+            count(&input, &checklist, &mut memoize)
         })
-        .fold(|| 0_usize, |acc, x| {acc+x})
-        .sum::<usize>();
-
+        .fold(0_usize, |acc, x| {acc+x});
     println!("{}", answer_1);
 
     let answer_2: usize = input
-        .par_lines()
+        .lines()
         .map(|line| {
             let (input, checklist) = parse_line_part_2(line);
-            count(&input, &checklist)
+            count(&input, &checklist, &mut memoize)
         })
-        .fold(|| 0_usize, |acc, x| {acc+x})
-        .sum::<usize>();
-    
+        .fold(0_usize, |acc, x| {acc+x});
     println!("{}", answer_2);
 
     /*
@@ -37,7 +33,7 @@ fn main() {
 
 }
 
-fn count(input: &str, checklist: &[usize]) -> usize {
+fn count(input: &str, checklist: &[usize], memoize: &mut HashMap<(String, Vec<usize>), usize>) -> usize {
     if input.len() == 0 {
         if checklist.len() == 0 {return 1}
         else {return 0}
@@ -48,10 +44,15 @@ fn count(input: &str, checklist: &[usize]) -> usize {
         else {return 1}
     }
 
+    let key = (input.to_owned(), checklist.to_owned());
+    if let Some(val) = memoize.get(&key) {
+        return *val;
+    }
+
     let mut result: usize = 0;
 
     if ".?".contains(&input[0..1]) {
-        result += count(&input[1..], &checklist[..]);
+        result += count(&input[1..], &checklist, memoize);
     }
 
     if "#?".contains(&input[0..1]) {
@@ -62,9 +63,12 @@ fn count(input: &str, checklist: &[usize]) -> usize {
         // asserts that we've either reached the end of our input or that there isn't another broken spring at the end of our block as that would invalidate the block
         && (input.len() == checklist[0] || &input[checklist[0]..checklist[0]+1] != "#")
         {
-            result += count(&input[checklist[0]..], &checklist[1..])
+            result += count(&input[checklist[0]..], &checklist[1..], memoize)
         }
     }
+
+    memoize.insert(key, result);
+
     result
 }
 
